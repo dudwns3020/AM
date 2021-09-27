@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 // /home/printDan
 @WebServlet("/home/printDan2")
-public class HomePrintDan2Ser extends HttpServlet {
+public class HomePrintDan2Servlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
