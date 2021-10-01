@@ -1,4 +1,4 @@
-package com.java.am;
+package com.java.am.util;
 
 import java.io.IOException;
 
