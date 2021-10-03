@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.java.am.util.DBUtil;
 import com.java.am.util.SecSql;
 
-@WebServlet("/article/list")
-public class ArticleListServlet extends HttpServlet {
+@WebServlet("/article/doDelete")
+public class ArticleDeleteServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -43,41 +43,14 @@ public class ArticleListServlet extends HttpServlet {
 
 		try {
 			con = DriverManager.getConnection(url, user, password);
+			int id = Integer.parseInt(request.getParameter("id"));
 
-			int page = 1;
-
-			if (request.getParameter("page") != null && request.getParameter("page").length() != 0) {
-				try {
-					page = Integer.parseInt(request.getParameter("page"));
-				} catch (NumberFormatException e) {
-
-				}
-			}
-
-			int itemsInAPage = 20;
-
-			int limitFrom = (page - 1) * itemsInAPage;
-
-			SecSql sql = SecSql.from("SELECT COUNT(*) AS count");
+			SecSql sql = SecSql.from("DELETE");
 			sql.append("FROM article");
+			sql.append("WHERE id = ?", id);
 
-			int totalCount = DBUtil.selectRowIntValue(con, sql);
-			int totalpage = (int) Math.ceil((double) totalCount / itemsInAPage);
-
-			sql = SecSql.from("SELECT *");
-			sql.append("FROM article");
-			sql.append("ORDER BY id DESC");
-			sql.append("LIMIT ?, ?", limitFrom, itemsInAPage);
-
-			System.out.print(sql);
-
-			List<Map<String, Object>> articleRows = DBUtil.selectRows(con, sql);
-
-			request.setAttribute("articleRows", articleRows);
-			request.setAttribute("page", page);
-			request.setAttribute("totalpage", totalpage);
-
-			request.getRequestDispatcher("/jsp/article/list.jsp").forward(request, response);
+			DBUtil.delete(con, sql);
+			response.getWriter().append("<script> alert('1번 글이 삭제되었습니다.'); location.replace('list'); </script>");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {

@@ -27,4 +27,14 @@ SET regDate = NOW(),
 title = '제목3',
 `body` = '내용3';
 
+INSERT INTO article 
+SET regDate = NOW(),
+title = '제목4',
+`body` = '내용4';
+
+INSERT INTO article 
+SET regDate = NOW(),
+title = '제목5',
+`body` = '내용5';
+
 SELECT * FROM article;
