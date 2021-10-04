@@ -17,13 +17,14 @@ import com.java.am.Config;
 import com.java.am.util.DBUtil;
 import com.java.am.util.SecSql;
 
-@WebServlet("/article/doDelete")
-public class ArticleDeleteServlet extends HttpServlet {
+@WebServlet("/article/modify")
+public class ArticleModifyServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setContentType("text/html; charset=UTF-8");
+
 
 		// 커넥터 드라이버 활성화
 		String driverName = Config.getDBDriverClassName();
@@ -44,13 +45,13 @@ public class ArticleDeleteServlet extends HttpServlet {
 			
 			int id = Integer.parseInt(request.getParameter("id"));
 
-			SecSql sql = SecSql.from("DELETE");
+			SecSql sql = SecSql.from("SELECT *");
 			sql.append("FROM article");
 			sql.append("WHERE id = ?", id);
 
-			DBUtil.delete(con, sql);
-			response.getWriter().append(
-					String.format("<script> alert('%d번 글이 삭제되었습니다.'); location.replace('list'); </script>", id));
+			Map<String, Object> articleRow = DBUtil.selectRow(con, sql);
+			request.setAttribute("articleRow", articleRow);
+			request.getRequestDispatcher("/jsp/article/modify.jsp").forward(request, response);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -63,10 +64,10 @@ public class ArticleDeleteServlet extends HttpServlet {
 			}
 		}
 	}
-
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		doGet(request, response);
 	}
 }
+

@@ -17,12 +17,13 @@ import com.java.am.Config;
 import com.java.am.util.DBUtil;
 import com.java.am.util.SecSql;
 
-@WebServlet("/article/doDelete")
-public class ArticleDeleteServlet extends HttpServlet {
+@WebServlet("/article/doModify")
+public class ArticleDoModifyServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
 
 		// 커넥터 드라이버 활성화
@@ -43,14 +44,17 @@ public class ArticleDeleteServlet extends HttpServlet {
 			con = DriverManager.getConnection(Config.getDBUrl(), Config.getDBId(), Config.getDBPw());
 			
 			int id = Integer.parseInt(request.getParameter("id"));
+			String title = request.getParameter("title");
+			String body = request.getParameter("body");
 
-			SecSql sql = SecSql.from("DELETE");
-			sql.append("FROM article");
+			SecSql sql = SecSql.from("UPDATE article");
+			sql.append("SET title = ?", title);
+			sql.append(", `body` = ?", body);
 			sql.append("WHERE id = ?", id);
 
-			DBUtil.delete(con, sql);
-			response.getWriter().append(
-					String.format("<script> alert('%d번 글이 삭제되었습니다.'); location.replace('list'); </script>", id));
+			DBUtil.update(con, sql);
+			response.getWriter().append(String
+					.format("<script> alert('%d번 글이 수정되었습니다.'); location.replace('detail?id=%d'); </script>", id, id));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
