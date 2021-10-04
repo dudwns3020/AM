@@ -19,6 +19,7 @@ import com.java.am.util.SecSql;
 @WebServlet("/article/doDelete")
 public class ArticleDeleteServlet extends HttpServlet {
 
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setContentType("text/html; charset=UTF-8");
@@ -50,7 +51,8 @@ public class ArticleDeleteServlet extends HttpServlet {
 			sql.append("WHERE id = ?", id);
 
 			DBUtil.delete(con, sql);
-			response.getWriter().append("<script> alert('1번 글이 삭제되었습니다.'); location.replace('list'); </script>");
+			response.getWriter().append(
+					String.format("<script> alert('%d번 글이 삭제되었습니다.'); location.replace('list'); </script>", id));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -62,5 +64,11 @@ public class ArticleDeleteServlet extends HttpServlet {
 				}
 			}
 		}
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doGet(request, response);
 	}
 }

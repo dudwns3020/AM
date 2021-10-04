@@ -17,6 +17,9 @@ int totalpage = (int) request.getAttribute("totalpage");
 
 	<h1>게시물 리스트</h1>
 
+	<div>
+		<a href="write">게시물작성</a>
+	</div>
 	<table border="1">
 		<thead>
 			<tr>
@@ -42,7 +45,7 @@ int totalpage = (int) request.getAttribute("totalpage");
 		%>
 	</table>
 	<style type="text/css">
-.page> a.red {
+.page>a.red {
 	color: red;
 }
 </style>
