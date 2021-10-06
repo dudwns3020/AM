@@ -11,6 +11,14 @@ CREATE TABLE article(
     `body` LONGTEXT NOT NULL
 );
 
+# 멤버 테이블 생성
+CREATE TABLE `member` (
+    id INT(10) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    regDate DATETIME NOT NULL,
+    loginId CHAR(100) NOT NULL,
+    loginPw CHAR(100) NOT NULL UNIQUE,
+    `name` CHAR(100) NOT NULL
+);
 # 게시물 데이터 추가 
 INSERT INTO article 
 SET regDate = NOW(),
@@ -38,3 +46,5 @@ title = '제목5',
 `body` = '내용5';
 
 SELECT * FROM article;
+
+SELECT * FROM `member`;
