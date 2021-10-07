@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.java.am.Config;
+import com.java.am.exception.SQLErrorException;
 import com.java.am.util.DBUtil;
 import com.java.am.util.SecSql;
 
@@ -78,6 +79,8 @@ public class ArticleListServlet extends HttpServlet {
 			request.getRequestDispatcher("/jsp/article/list.jsp").forward(request, response);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (SQLErrorException e) {
+			e.getOrigin().printStackTrace();
 		} finally {
 			if (con != null) {
 				try {

@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.java.am.Config;
+import com.java.am.exception.SQLErrorException;
 import com.java.am.util.DBUtil;
 import com.java.am.util.SecSql;
 
@@ -56,6 +57,8 @@ public class ArticleDoWriteServlet extends HttpServlet {
 					String.format("<script> alert('%d번 글이 생성되었습니다.'); location.replace('list'); </script>", id));
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (SQLErrorException e) {
+			e.getOrigin().printStackTrace();
 		} finally {
 			if (con != null) {
 				try {

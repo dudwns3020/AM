@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.java.am.Config;
+import com.java.am.exception.SQLErrorException;
 import com.java.am.util.DBUtil;
 import com.java.am.util.SecSql;
 
@@ -41,7 +42,7 @@ public class ArticleDetailServlet extends HttpServlet {
 
 		try {
 			con = DriverManager.getConnection(Config.getDBUrl(), Config.getDBId(), Config.getDBPw());
-			
+
 			int id = Integer.parseInt(request.getParameter("id"));
 
 			SecSql sql = SecSql.from("SELECT *");
@@ -53,6 +54,8 @@ public class ArticleDetailServlet extends HttpServlet {
 			request.getRequestDispatcher("/jsp/article/detail.jsp").forward(request, response);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (SQLErrorException e) {
+			e.getOrigin().printStackTrace();
 		} finally {
 			if (con != null) {
 				try {
@@ -63,10 +66,10 @@ public class ArticleDetailServlet extends HttpServlet {
 			}
 		}
 	}
+
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		doGet(request, response);
 	}
 }
-

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.java.am.Config;
+import com.java.am.exception.SQLErrorException;
 import com.java.am.util.DBUtil;
 import com.java.am.util.SecSql;
 
@@ -44,8 +45,20 @@ public class MemberDoJoinServlet extends HttpServlet {
 			String loginId = request.getParameter("loginId");
 			String loginPw = request.getParameter("loginPw");
 			String name = request.getParameter("name");
+			
+			SecSql sql = SecSql.from("SELECT COUNT(*) AS cnt");
+			sql.append("FROM `member`");
+			sql.append("WHERE loginId = ?", loginId);
+			
+			boolean isJoinAvailavleLoginId = DBUtil.selectRowIntValue(con, sql) == 0;
 
-			SecSql sql = SecSql.from("INSERT INTO member");
+			if(isJoinAvailavleLoginId == false) {
+				response.getWriter().append(
+						String.format("<script> alert('%s (은)는 이미 사용중인 아이디 입니다.'); history.back(); </script>", loginId));
+				return;
+			}
+			
+			sql = SecSql.from("INSERT INTO member");
 			sql.append("SET regDate = NOW()");
 			sql.append(", loginId = ?", loginId);
 			sql.append(", loginPw = ?", loginPw);
@@ -56,6 +69,8 @@ public class MemberDoJoinServlet extends HttpServlet {
 					String.format("<script> alert('%d번 회원이 가입되었습니다.'); location.replace('../home/main'); </script>", id));
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (SQLErrorException e) {
+			e.getOrigin().printStackTrace();
 		} finally {
 			if (con != null) {
 				try {
