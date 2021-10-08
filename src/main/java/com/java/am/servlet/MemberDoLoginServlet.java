@@ -4,27 +4,28 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.java.am.Config;
 import com.java.am.exception.SQLErrorException;
 import com.java.am.util.DBUtil;
 import com.java.am.util.SecSql;
 
-@WebServlet("/member/doJoin")
-public class MemberDoJoinServlet extends HttpServlet {
+@WebServlet("/member/doLogin")
+public class MemberDoLoginServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
-
 
 		// 커넥터 드라이버 활성화
 		String driverName = Config.getDBDriverClassName();
@@ -44,29 +45,32 @@ public class MemberDoJoinServlet extends HttpServlet {
 			con = DriverManager.getConnection(Config.getDBUrl(), Config.getDBId(), Config.getDBPw());
 			String loginId = request.getParameter("loginId");
 			String loginPw = request.getParameter("loginPw");
-			String name = request.getParameter("name");
-			
-			SecSql sql = SecSql.from("SELECT COUNT(*) AS cnt");
+
+			SecSql sql = SecSql.from("SELECT *");
 			sql.append("FROM `member`");
 			sql.append("WHERE loginId = ?", loginId);
-			
-			boolean isJoinAvailavleLoginId = DBUtil.selectRowIntValue(con, sql) == 0;
 
-			if(isJoinAvailavleLoginId == false) {
+			Map<String, Object> memberRow = DBUtil.selectRow(con, sql);
+
+			if (memberRow.isEmpty()) {
 				response.getWriter().append(
-						String.format("<script> alert('%s (은)는 이미 사용중인 아이디 입니다.'); history.back(); </script>", loginId));
+						String.format("<script> alert('%s (은)는 존재하지 않는 회원입니다.'); history.back(); </script>", loginId));
 				return;
 			}
-			
-			sql = SecSql.from("INSERT INTO member");
-			sql.append("SET regDate = NOW()");
-			sql.append(", loginId = ?", loginId);
-			sql.append(", loginPw = ?", loginPw);
-			sql.append(", `name` = ?", name);
 
-			int id = DBUtil.insert(con, sql);
-			response.getWriter().append(
-					String.format("<script> alert('%d번 회원이 가입되었습니다.'); location.replace('../home/main'); </script>", loginId));
+			if (((String) memberRow.get("loginPw")).equals(loginPw) == false) {
+				response.getWriter()
+						.append(String.format("<script> alert('비밀번호가 일치하지 않습니다.'); history.back(); </script>"));
+				return;
+			}
+
+			HttpSession session = request.getSession();
+			session.setAttribute("loginedMemberId", memberRow.get("id"));
+			
+			response.getWriter()
+					.append(String.format("<script> alert('로그인 성공'); location.replace('../home/main'); </script>"));
+			return;
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (SQLErrorException e) {
