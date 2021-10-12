@@ -16,6 +16,8 @@ Map<String, Object> articleRow = (Map<String, Object>) request.getAttribute("art
 
 	<h1>게시물 상세 페이지</h1>
 
+	<a href="../article/list">게시물 리스트</a>
+
 	<div>
 		번호 :
 		<%=(int) articleRow.get("id")%></div>
