@@ -28,7 +28,7 @@ public class DispatcherServlet extends HttpServlet {
 			throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
-		
+
 		// 커넥터 드라이버 활성화
 		String driverName = Config.getDBDriverClassName();
 
@@ -45,22 +45,46 @@ public class DispatcherServlet extends HttpServlet {
 
 		try {
 			con = DriverManager.getConnection(Config.getDBUrl(), Config.getDBId(), Config.getDBPw());
-			
+
+			//모든 요청에 들어가기 전에 무조건 해줘야 하는 일
+			HttpSession session = request.getSession();
+
+			boolean isLogined = false;
+			int loginedMemberId = -1;
+			Map<String, Object> loginedMemberRow = null;
+
+			if (session.getAttribute("loginedMemberId") != null) {
+				loginedMemberId = (int) session.getAttribute("loginedMemberId");
+				isLogined = true;
+
+				SecSql sql = SecSql.from("SELECT * FROM `member`");
+				sql.append("WHERE id = ?", loginedMemberId);
+				loginedMemberRow = DBUtil.selectRow(con, sql);
+			}
+
+			request.setAttribute("isLogined", isLogined);
+			request.setAttribute("loginedMemberId", loginedMemberId);
+			request.setAttribute("loginedMemberRow", loginedMemberRow);
+
 			String requestUri = request.getRequestURI();
 			String[] requestUriBits = requestUri.split("/");
-			
-			if(requestUriBits.length < 5) {
+
+			if (requestUriBits.length < 5) {
 				response.getWriter().append("올바른 요청이 아닙니다.");
 				return;
 			}
 
-			String ControllerName = requestUriBits[3];
+			String controllerName = requestUriBits[3];
 			String actionMethodName = requestUriBits[4];
-			
-			if (ControllerName.equals("article")) {
+
+			if (controllerName.equals("article")) {
 				ArticleController controller = new ArticleController(request, response, con);
+
+				if (actionMethodName.equals("list")) {
+					controller.actionList();
+				}
 			}
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (SQLErrorException e) {
